@@ -1,5 +1,8 @@
 package cs181;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.io.IntWritable;
@@ -21,9 +24,17 @@ public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritabl
 	    private final IntWritable one = new IntWritable(1);
 	    private Text word = new Text();
 	    private String pattern= "^[a-z][a-z0-9]*$";
+	    //String punctList[] = { ".", ";", "-", "...", ",", "!", "?", ")", "(", ":" };
+	    String stopWordList[]   = { "I", "a", "about", "an", "are", "as", "be", "by", "com", "for", "from", "how", "in", "is", "it", 
+	    		"of", "on", "or", "that", "the", "this", "to", "was", "what", "when", "where", "who", "will", "with", "the", "www"}; 
+	    
+	    //private Set<String> punctuation = new HashSet<String>(Arrays.asList(punctList));
+	    private Set<String> stopWords    = new HashSet<String>(Arrays.asList(stopWordList));
+	    
 	    
 	    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 	        
+	    	
 	    	String line = value.toString();  /* get line of text from variable 'value' and convert to string */
 	    	
 	    	/* Lets use a string tokenizer to split line by words using a pattern matcher */
@@ -34,8 +45,9 @@ public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritabl
 	            String stringWord = word.toString().toLowerCase();
 	            
 	            /* for each word, output the word as the key, and value as 1 */
-	            if (stringWord.matches(pattern)){
+	            if (stringWord.matches(pattern) && !stopWords.contains(stringWord)){
 	                context.write(new Text(stringWord), one);
+	                
 	            }
 	            
 	        }
